@@ -1,0 +1,39 @@
+{
+    "name": "ROS 2 Jazzy Dev Container",
+    "privileged": true,
+    "remoteUser": "root",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "workspaceFolder": "/root/ws",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/root/ws,type=bind",
+    "customizations": {
+        "vscode": {
+            "extensions":[
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-themes",
+                "ms-vscode.cmake-tools",
+                "Ranch-Hand-Robotics.rde-pack",
+                "GitHub.vscode-github-actions",
+                "ms-python.python"
+            ]
+        }
+    },
+    "containerEnv": {
+        "DISPLAY": "unix:0",
+        "ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST",
+        "ROS_DOMAIN_ID": "42"
+    },
+    "runArgs": [
+        "--net=host",
+        "--pid=host",
+        "--ipc=host",
+        "-e", "DISPLAY=${env:DISPLAY}"
+    ],
+    "mounts": [
+       "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+       "source=/dev,target=/dev,type=bind,consistency=cached",
+       "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
+    "postCreateCommand": "rosdep update && rosdep install --from-paths src --ignore-src -y && chown -R root /root/ws/"
+}

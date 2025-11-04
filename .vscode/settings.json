@@ -1,0 +1,22 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ],
+    "terminal.integrated.profiles.linux": {
+        "ros2": {
+            "path": "/bin/bash",
+            "args": ["-l"],
+            "env": {
+                "ROS_WORKSPACE": "${workspaceFolder}"
+            }
+        }
+    },
+    "terminal.integrated.defaultProfile.linux": "ros2",
+    "terminal.integrated.shellIntegration.enabled": true,
+    "terminal.integrated.env.linux": {
+        "BASH_ENV": "${workspaceFolder}/.vscode/source_ros2.sh"
+    }
+}

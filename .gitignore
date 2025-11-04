@@ -1,0 +1,31 @@
+### ROS2 ###
+install/
+log/
+build/
+*.dox
+*.wikidoc
+.project
+.cproject
+CMakeLists.txt.user
+srv/_*.py
+*.pcd
+*.pyc
+qtcreator-*
+*.user
+*~
+.#*
+COLCON_IGNORE
+AMENT_IGNORE
+
+### VSCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+!.vscode/*.sh
+.history/
+*.vsix
+.history
+.ionide
