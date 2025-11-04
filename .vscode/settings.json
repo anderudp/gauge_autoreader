@@ -8,15 +8,12 @@
     "terminal.integrated.profiles.linux": {
         "ros2": {
             "path": "/bin/bash",
-            "args": ["-l"],
+            "args": ["--rcfile", "${workspaceFolder}/.vscode/source_ros2.sh"],
             "env": {
                 "ROS_WORKSPACE": "${workspaceFolder}"
             }
         }
     },
     "terminal.integrated.defaultProfile.linux": "ros2",
-    "terminal.integrated.shellIntegration.enabled": true,
-    "terminal.integrated.env.linux": {
-        "BASH_ENV": "${workspaceFolder}/.vscode/source_ros2.sh"
-    }
+    "terminal.integrated.shellIntegration.enabled": true
 }
