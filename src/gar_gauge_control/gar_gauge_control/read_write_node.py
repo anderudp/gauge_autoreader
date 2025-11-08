@@ -38,9 +38,17 @@ class ReadWriteNode(Node):
 
         self.control_mode = "position"
 
-        self.control_mode_vals = {
-            "position": POSITION_CONTROL,
-            "velocity": VELOCITY_CONTROL
+        self.control_vals = {
+            "position": {
+                "control_mode": POSITION_CONTROL, 
+                "present": ADDR_PRESENT_POSITION, 
+                "goal": ADDR_GOAL_POSITION
+            },
+            "velocity": {
+                "control_mode": POSITION_CONTROL, 
+                "present": ADDR_PRESENT_VELOCITY, 
+                "goal": ADDR_GOAL_VELOCITY
+            }
         }
 
         self.port_handler = PortHandler(DEVICE_NAME)
@@ -49,49 +57,79 @@ class ReadWriteNode(Node):
         if not self.port_handler.openPort():
             self.get_logger().error('Failed to open the port!')
             return
-        self.get_logger().info('Succeeded to open the port.')
+        self.get_logger().info('Port opened successfully.')
 
         if not self.port_handler.setBaudRate(BAUDRATE):
             self.get_logger().error('Failed to set the baudrate!')
             return
-        self.get_logger().info('Succeeded to set the baudrate.')
+        self.get_logger().info('Baudrate set successfully.')
 
-        self.setup_dynamixel_control(DXL_ID, POSITION_CONTROL)
+        self.set_control_mode(POSITION_CONTROL)
         qos = QoSProfile(depth=10)
 
-        self.subscription = self.create_subscription(
-            SetPosition,
-            'set_position',
-            self.set_position_callback,
+        self.servo_command_sub = self.create_subscription(
+            ServoCommand,
+            'servo_command',
+            self.cb_servo_command,
             qos
         )
 
         self.srv = self.create_service(GetPosition, 'get_position', self.get_position_callback)
 
-    def setup_dynamixel_control(self, dxl_id, control_mode):
-        dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
-            self.port_handler, dxl_id, ADDR_OPERATING_MODE, control_mode
-        )
-        if dxl_comm_result != COMM_SUCCESS:
-            self.get_logger().error(f'Failed to set Position Control Mode: \
-                                    {self.packet_handler.getTxRxResult(dxl_comm_result)}')
-        else:
-            self.get_logger().info('Succeeded to set Position Control Mode.')
 
-        dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
-            self.port_handler, dxl_id, ADDR_TORQUE_ENABLE, TORQUE_ENABLE
-        )
-        if dxl_comm_result != COMM_SUCCESS:
-            self.get_logger().error(f'Failed to enable torque: \
-                                    {self.packet_handler.getTxRxResult(dxl_comm_result)}')
-        else:
-            self.get_logger().info('Succeeded to enable torque.')
+    def set_control_mode(self, mode):
+        try:
+            # Disable torque
+            dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
+                self.port_handler, DXL_ID, ADDR_TORQUE_ENABLE, TORQUE_DISABLE
+            )
+            if dxl_comm_result != COMM_SUCCESS:
+                self.get_logger().error(f'Failed to disable torque: \
+                                        {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+                raise ConnectionError(dxl_error)
+            else:
+                self.get_logger().info('Torque disabled successfully.')
 
-    def set_position_callback(self, msg):
-        goal_position = msg.position
+            # Set control mode
+            dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
+                self.port_handler, DXL_ID, ADDR_OPERATING_MODE, self.control_vals[mode]["control_mode"]
+            )
+            if dxl_comm_result != COMM_SUCCESS:
+                self.get_logger().error(f'Failed to set {mode} control mode: \
+                                        {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+                raise ConnectionError(dxl_error)
+            else:
+                self.get_logger().info(f'Control mode ({mode}) set successfully.')
+
+            # Re-enable torque
+            dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
+                self.port_handler, DXL_ID, ADDR_TORQUE_ENABLE, TORQUE_ENABLE
+            )
+            if dxl_comm_result != COMM_SUCCESS:
+                self.get_logger().error(f'Failed to enable torque: \
+                                        {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+                raise ConnectionError(dxl_error)
+            else:
+                self.get_logger().info('Torque enabled successfully.')
+            
+            # Save current control mode
+            self.control_mode = mode
+
+        except ConnectionError as err:
+            self.get_logger().error(f'{err}')
+            return
+
+
+    def cb_servo_command(self, msg:ServoCommand):
+        # Set control mode
+        while self.control_mode != msg.mode:
+            self.set_control_mode(msg.mode)
+
+        servo_target = msg.value
+        goal_address = self.control_vals[self.control_mode]["goal"]
 
         dxl_comm_result, dxl_error = self.packet_handler.write4ByteTxRx(
-            self.port_handler, msg.id, ADDR_GOAL_POSITION, goal_position
+            self.port_handler, DXL_ID, goal_address, servo_target
         )
 
         if dxl_comm_result != COMM_SUCCESS:
@@ -100,7 +138,7 @@ class ReadWriteNode(Node):
         elif dxl_error != 0:
             self.get_logger().error(f'Error: {self.packet_handler.getRxPacketError(dxl_error)}')
         else:
-            self.get_logger().info(f'Set [ID: {msg.id}] [Goal Position: {msg.position}]')
+            self.get_logger().info(f'Set {self.control_mode} to target: {msg.value}')
 
     def get_position_callback(self, request, response):
         dxl_present_position, dxl_comm_result, dxl_error = self.packet_handler.read4ByteTxRx(
