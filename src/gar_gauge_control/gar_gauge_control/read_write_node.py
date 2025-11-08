@@ -116,7 +116,7 @@ class ReadWriteNode(Node):
             else:
                 self.get_logger().info('Torque enabled successfully.')
             
-            # Save current control mode
+            # Save present control mode
             self.control_mode = mode
 
         except ConnectionError as err:
