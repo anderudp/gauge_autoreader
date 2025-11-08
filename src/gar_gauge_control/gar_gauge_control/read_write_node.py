@@ -42,12 +42,16 @@ class ReadWriteNode(Node):
             "position": {
                 "control_mode": POSITION_CONTROL, 
                 "present": ADDR_PRESENT_POSITION, 
-                "goal": ADDR_GOAL_POSITION
+                "goal": ADDR_GOAL_POSITION,
+                "min": MIN_POSITION_LIMIT,
+                "max": MAX_POSITION_LIMIT
             },
             "velocity": {
                 "control_mode": POSITION_CONTROL, 
                 "present": ADDR_PRESENT_VELOCITY, 
-                "goal": ADDR_GOAL_VELOCITY
+                "goal": ADDR_GOAL_VELOCITY,
+                "min": MIN_VELOCITY_LIMIT,
+                "max": MAX_VELOCITY_LIMIT
             }
         }
 
@@ -125,6 +129,13 @@ class ReadWriteNode(Node):
         while self.control_mode != msg.mode:
             self.set_control_mode(msg.mode)
 
+        # Check control value validity
+        expected_min = self.control_vals[self.control_mode]["min"]
+        expected_max = self.control_vals[self.control_mode]["max"]
+        if msg.value <= expected_min or msg.value >= expected_max:
+            self.get_logger().error(f"Invalid contol value! Got: {msg.value}, Expected range: {expected_min}-{expected_max}")
+            return
+
         servo_target = msg.value
         goal_address = self.control_vals[self.control_mode]["goal"]
 
@@ -138,7 +149,7 @@ class ReadWriteNode(Node):
         elif dxl_error != 0:
             self.get_logger().error(f'Error: {self.packet_handler.getRxPacketError(dxl_error)}')
         else:
-            self.get_logger().info(f'Set {self.control_mode} to target: {msg.value}')
+            self.get_logger().info(f'Setting {self.control_mode} to target: {msg.value}')
 
     def get_position_callback(self, request, response):
         dxl_present_position, dxl_comm_result, dxl_error = self.packet_handler.read4ByteTxRx(
