@@ -16,39 +16,32 @@
 #
 # Author: Wonho Yun, Will Son
 
+# CHANGELOG
+# Added velocity control mode functionality
 
+from const_xc330_t181 import *
 from dynamixel_sdk import COMM_SUCCESS
 from dynamixel_sdk import PacketHandler
 from dynamixel_sdk import PortHandler
 from dynamixel_sdk_custom_interfaces.msg import SetPosition
 from dynamixel_sdk_custom_interfaces.srv import GetPosition
+from gar_interfaces.msg import ServoCommand
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-
-# Control table address
-ADDR_OPERATING_MODE = 11  # Control table address is different in Dynamixel model
-ADDR_TORQUE_ENABLE = 64
-ADDR_GOAL_POSITION = 116
-ADDR_PRESENT_POSITION = 132
-
-# Protocol version
-PROTOCOL_VERSION = 2.0  # Default Protocol version of DYNAMIXEL X series.
-
-# Default settings
-DXL_ID = 1  # Dynamixel ID : 1
-BAUDRATE = 57600  # Dynamixel default baudrate : 57600
-DEVICE_NAME = '/dev/ttyUSB0'  # Check which port is being used on your controller
-
-TORQUE_ENABLE = 1  # Value for enabling the torque
-TORQUE_DISABLE = 0  # Value for disabling the torque
-POSITION_CONTROL = 3  # Value for position control mode
 
 
 class ReadWriteNode(Node):
 
     def __init__(self):
         super().__init__('read_write_node')
+
+        self.control_mode = "position"
+
+        self.control_mode_vals = {
+            "position": POSITION_CONTROL,
+            "velocity": VELOCITY_CONTROL
+        }
 
         self.port_handler = PortHandler(DEVICE_NAME)
         self.packet_handler = PacketHandler(PROTOCOL_VERSION)
@@ -63,7 +56,7 @@ class ReadWriteNode(Node):
             return
         self.get_logger().info('Succeeded to set the baudrate.')
 
-        self.setup_dynamixel(DXL_ID)
+        self.setup_dynamixel_control(DXL_ID, POSITION_CONTROL)
         qos = QoSProfile(depth=10)
 
         self.subscription = self.create_subscription(
@@ -75,9 +68,9 @@ class ReadWriteNode(Node):
 
         self.srv = self.create_service(GetPosition, 'get_position', self.get_position_callback)
 
-    def setup_dynamixel(self, dxl_id):
+    def setup_dynamixel_control(self, dxl_id, control_mode):
         dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
-            self.port_handler, dxl_id, ADDR_OPERATING_MODE, POSITION_CONTROL
+            self.port_handler, dxl_id, ADDR_OPERATING_MODE, control_mode
         )
         if dxl_comm_result != COMM_SUCCESS:
             self.get_logger().error(f'Failed to set Position Control Mode: \

@@ -7,6 +7,7 @@ from pynput import keyboard
 
 
 class CalibratorNode(Node):
+
     def __init__(self):
         super().__init__("calibrator_node")
 
@@ -23,7 +24,6 @@ class CalibratorNode(Node):
             self.cb_key_press,
             self.cb_key_release
         )
-
 
         self.get_position_cli = self.create_client(
             GetPosition,

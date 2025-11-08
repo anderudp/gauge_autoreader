@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'gauge_control'
+package_name = 'gar_gauge_control'
 
 setup(
     name=package_name,
@@ -24,8 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'calibrator_node = gauge_control.calibrator_node:main',
-            'read_write_node = gauge_control.read_write_node:main'
+            'calibrator_node = gar_gauge_control.calibrator_node:main',
+            'read_write_node = gar_gauge_control.read_write_node:main'
         ],
     },
 )
