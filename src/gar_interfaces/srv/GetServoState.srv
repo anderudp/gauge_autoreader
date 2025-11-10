@@ -1,4 +1,7 @@
+# Request
 std_msgs/Header header
 uint8 id
 string mode  # "position", "velocity"
+---
+# Response
 int16 value

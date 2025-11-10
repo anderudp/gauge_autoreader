@@ -1,4 +1,5 @@
 FROM ros:jazzy
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root/ws
 
@@ -11,7 +12,7 @@ RUN apt-get update && apt-get upgrade -y \
     python3-rosdep \
     python3-colcon-common-extensions \
     python3-pynput \
-    ros-jazzy-rviz2 \
-    && rm -rf /var/lib/apt/lists/*
+    python3-serial \
+    ros-jazzy-rviz2
 
 ENV SHELL /bin/bash
