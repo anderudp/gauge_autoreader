@@ -28,6 +28,7 @@ endif()
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ServoCommand.msg"
   "srv/GetServoState.srv"
+  "srv/SetServoControlMode.srv"
   DEPENDENCIES std_msgs
 )
 

@@ -1,4 +1,3 @@
 std_msgs/Header header
 uint8 id
-string mode  # "position", "velocity"
 int16 value

@@ -23,7 +23,7 @@ from dynamixel_sdk import COMM_SUCCESS
 from dynamixel_sdk import PacketHandler
 from dynamixel_sdk import PortHandler
 from gar_interfaces.msg import ServoCommand
-from gar_interfaces.srv import GetServoState
+from gar_interfaces.srv import GetServoState, SetServoControlMode
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
@@ -88,15 +88,21 @@ class ReadWriteNode(Node):
             qos
         )
 
-        self.srv = self.create_service(
+        self.get_servo_state_srv = self.create_service(
             GetServoState, 
             'get_servo_state', 
             self.cb_get_servo_state
         )
 
+        self.set_servo_control_mode_cli = self.create_service(
+            SetServoControlMode,
+            'set_servo_control_mode',
+            self.cb_set_servo_control_mode
+        )
+
 
     def get_param_as_int(self, param_name: str):
-        val = self.get_parameter("param_name").value
+        val = self.get_parameter(param_name).value
         try:
             assert isinstance(val, int)
             return val
@@ -106,7 +112,7 @@ class ReadWriteNode(Node):
     
 
     def get_param_as_float(self, param_name: str):
-        val = self.get_parameter("param_name").value
+        val = self.get_parameter(param_name).value
         try:
             assert isinstance(val, float)
             return val
@@ -116,7 +122,7 @@ class ReadWriteNode(Node):
 
 
     def get_param_as_str(self, param_name: str):
-        val = self.get_parameter("param_name").value
+        val = self.get_parameter(param_name).value
         try:
             assert isinstance(val, str)
             return val
@@ -229,6 +235,9 @@ class ReadWriteNode(Node):
         response.value = dxl_present_value
         return response
 
+    
+    def cb_set_servo_control_mode(self, request, response):
+        pass
 
     def __del__(self):
         self.packet_handler.write1ByteTxRx(
