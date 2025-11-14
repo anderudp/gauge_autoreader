@@ -61,8 +61,6 @@ class CalibratorNode(Node):
                                Hold shift for faster rotation. Press Enter when done.""")
         
         # Publish torque per key_table, while Enter not pressed
-        
-
 
 
 def main(args=None):

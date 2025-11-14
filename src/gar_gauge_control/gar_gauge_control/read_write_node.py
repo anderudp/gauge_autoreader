@@ -80,6 +80,7 @@ class ReadWriteNode(Node):
 
         # Declare internode comms channels
         qos = QoSProfile(depth=10)
+
         self.servo_command_sub = self.create_subscription(
             ServoCommand,
             'servo_command',
@@ -90,13 +91,15 @@ class ReadWriteNode(Node):
         self.get_servo_state_srv = self.create_service(
             GetServoState, 
             'get_servo_state', 
-            self.cb_get_servo_state
+            self.cb_get_servo_state,
+            qos_profile=qos
         )
 
         self.set_servo_control_mode_cli = self.create_service(
             SetServoControlMode,
             'set_servo_control_mode',
-            self.cb_set_servo_control_mode
+            self.cb_set_servo_control_mode,
+            qos_profile=qos
         )
 
 

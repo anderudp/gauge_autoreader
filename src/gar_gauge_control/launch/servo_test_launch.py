@@ -20,4 +20,9 @@ def generate_launch_description():
                 servo_config
             ]
         ),
+        Node(
+            package='gar_gauge_control',
+            executable='servo_tester_node',
+            name='servo_tester_node'
+        ),
     ])
