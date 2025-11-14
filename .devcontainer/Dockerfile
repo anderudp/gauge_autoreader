@@ -13,6 +13,7 @@ RUN apt-get update && apt-get upgrade -y \
     python3-colcon-common-extensions \
     python3-pynput \
     python3-serial \
-    ros-jazzy-rviz2
+    ros-jazzy-rviz2 \
+    ros-jazzy-dynamixel-sdk
 
 ENV SHELL /bin/bash
