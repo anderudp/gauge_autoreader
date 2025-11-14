@@ -40,18 +40,18 @@ class ReadWriteNode(Node):
         # Grab servo-specific control parameters for each desired control mode from config file
         self.control_mode_vars = {
             "position": {
-                "control_mode": self.get_param_as_int("POSITION_CONTROL"), 
+                "control_mode_id": self.get_param_as_int("POSITION_CONTROL"), 
                 "present": self.get_param_as_int("ADDR_PRESENT_POSITION"), 
-                "goal": self.get_param_as_int("ADDR_GOAL_POSITION"),
-                "min": self.get_param_as_int("MIN_POSITION_LIMIT"),
-                "max": self.get_param_as_int("MAX_POSITION_LIMIT")
+                "goal_addr": self.get_param_as_int("ADDR_GOAL_POSITION"),
+                "min_val": self.get_param_as_int("MIN_POSITION_LIMIT"),
+                "max_val": self.get_param_as_int("MAX_POSITION_LIMIT")
             },
             "velocity": {
-                "control_mode": self.get_param_as_int("POSITION_CONTROL"), 
+                "control_mode_id": self.get_param_as_int("POSITION_CONTROL"), 
                 "present": self.get_param_as_int("ADDR_PRESENT_VELOCITY"), 
-                "goal": self.get_param_as_int("ADDR_GOAL_VELOCITY"),
-                "min": self.get_param_as_int("MIN_VELOCITY_LIMIT"),
-                "max": self.get_param_as_int("MAX_VELOCITY_LIMIT")
+                "goal_addr": self.get_param_as_int("ADDR_GOAL_VELOCITY"),
+                "min_val": self.get_param_as_int("MIN_VELOCITY_LIMIT"),
+                "max_val": self.get_param_as_int("MAX_VELOCITY_LIMIT")
             }
         }
 
@@ -75,9 +75,8 @@ class ReadWriteNode(Node):
             return
         self.get_logger().info('Baudrate set successfully.')
 
-        # Initialize position control 
-        self.control_mode = "position"
-        self.set_control_mode(self.control_mode)
+        # Control mode starts out uninitialized
+        self.control_mode = ""
 
         # Declare internode comms channels
         qos = QoSProfile(depth=10)
@@ -130,74 +129,19 @@ class ReadWriteNode(Node):
             self.get_logger().error(f"Type mismatch in config file! {param_name} is {type(val)} when a string was expected.")
 
 
-    def set_control_mode(self, mode):
-        self.get_logger().info(f"Setting control mode to {mode}")
-        try:
-            # Disable torque
-            dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
-                self.port_handler, 
-                self.dxl_id, 
-                self.addr_torque_enable, 
-                self.val_torque_disable
-            )
-            if dxl_comm_result != COMM_SUCCESS:
-                self.get_logger().error(f'Failed to disable torque: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
-                raise ConnectionError(dxl_error)
-            else:
-                self.get_logger().info('Torque disabled successfully.')
-
-            # Set control mode
-            dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
-                self.port_handler, 
-                self.dxl_id, 
-                self.addr_operating_mode, 
-                self.control_mode_vars[mode]["control_mode"]
-            )
-            if dxl_comm_result != COMM_SUCCESS:
-                self.get_logger().error(f'Failed to set {mode} control mode: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
-                raise ConnectionError(dxl_error)
-            else:
-                self.get_logger().info(f'Control mode ({mode}) set successfully.')
-
-            # Re-enable torque
-            dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
-                self.port_handler, 
-                self.dxl_id, 
-                self.addr_torque_enable, 
-                self.val_torque_enable
-            )
-            if dxl_comm_result != COMM_SUCCESS:
-                self.get_logger().error(f'Failed to enable torque: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
-                raise ConnectionError(dxl_error)
-            else:
-                self.get_logger().info('Torque enabled successfully.')
-            
-            # Save present control mode
-            self.control_mode = mode
-
-        except ConnectionError as err:
-            self.get_logger().error(f'{err}')
-            return
-
-
     def cb_servo_command(self, msg: ServoCommand):
         # Extract message
         target_servo_id = msg.id
-        servo_mode = msg.mode
         target_value = msg.value
         
-        # Set control mode
-        while self.control_mode != servo_mode:
-            self.set_control_mode(servo_mode)
-        
         # Check control value validity
-        expected_min = self.control_mode_vars[servo_mode]["min"]
-        expected_max = self.control_mode_vars[servo_mode]["max"]
+        expected_min = self.control_mode_vars[self.control_mode]["min_val"]
+        expected_max = self.control_mode_vars[self.control_mode]["max_val"]
         if target_value <= expected_min or target_value >= expected_max:
             self.get_logger().error(f"Invalid contol value! Got: {target_value}, expected range: {expected_min}-{expected_max}")
             return
 
-        goal_address = self.control_mode_vars[servo_mode]["goal"]
+        goal_address = self.control_mode_vars[self.control_mode]["goal_addr"]
 
         dxl_comm_result, dxl_error = self.packet_handler.write4ByteTxRx(
             self.port_handler, 
@@ -207,11 +151,13 @@ class ReadWriteNode(Node):
         )
 
         if dxl_comm_result != COMM_SUCCESS:
-            self.get_logger().error(f'Error: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+            self.get_logger().error(f'Could not set control value: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+            return
         elif dxl_error != 0:
-            self.get_logger().error(f'Error: {self.packet_handler.getRxPacketError(dxl_error)}')
+            self.get_logger().error(f'Could not set control value: {self.packet_handler.getRxPacketError(dxl_error)}')
+            return
         else:
-            self.get_logger().info(f'[SET] Servo ID: {target_servo_id} Mode: {servo_mode} Target: {target_value}')
+            self.get_logger().info(f'[SET] Setting servo {target_servo_id}\'s {self.control_mode} to target: {target_value}')
 
 
     def cb_get_servo_state(self, request, response):
@@ -227,17 +173,85 @@ class ReadWriteNode(Node):
 
         if dxl_comm_result != COMM_SUCCESS:
             self.get_logger().error(f'Error: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+            response.value = 0
+            response.success = False
+            return response
         elif dxl_error != 0:
             self.get_logger().error(f'Error: {self.packet_handler.getRxPacketError(dxl_error)}')
+            response.value = 0
+            response.success = False
+            return response
         else:
-            self.get_logger().info(f'[GET] Servo ID: {query_servo_id} Mode: {query_mode} Present value: {dxl_present_value}')
-
-        response.value = dxl_present_value
-        return response
+            self.get_logger().info(f'[GET] Servo {query_servo_id}\'s present {query_mode}: {dxl_present_value}')
+            response.value = dxl_present_value
+            response.success = True
+            return response
 
     
     def cb_set_servo_control_mode(self, request, response):
-        pass
+        # Extract message
+        target_servo_id = request.id
+        control_mode = request.mode
+
+        # Check if already in the right mode
+        if control_mode == self.control_mode:
+            self.get_logger().info(f"Servo already in {control_mode} control mode.")
+            response.success = True
+            return response
+
+        self.get_logger().info(f"Control mode is being changed to {control_mode}.")
+
+        if self.control_mode != "":
+            # Disable torque
+            self.get_logger().info(f"Disabling torque...")
+            dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
+                self.port_handler, 
+                target_servo_id, 
+                self.addr_torque_enable, 
+                self.val_torque_disable
+            )
+            if dxl_comm_result != COMM_SUCCESS:
+                self.get_logger().error(f'Failed to disable torque: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+                response.success = False
+                return response
+            else:
+                self.get_logger().info('Torque disabled successfully, setting control mode...')
+        else:
+            self.get_logger().info(f"Initializing servo in {control_mode} control mode...")
+
+        # Set control mode
+        dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
+            self.port_handler, 
+            target_servo_id, 
+            self.addr_operating_mode, 
+            self.control_mode_vars[control_mode]["control_mode_id"]
+        )
+        if dxl_comm_result != COMM_SUCCESS:
+            self.get_logger().error(f'Failed to set {control_mode} control mode: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+            response.success = False
+            return response
+        else:
+            self.get_logger().info(f'Control mode set to {control_mode} successfully, enabling torque...')
+
+        # Re-enable torque
+        dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(
+            self.port_handler, 
+            target_servo_id, 
+            self.addr_torque_enable, 
+            self.val_torque_enable
+        )
+        if dxl_comm_result != COMM_SUCCESS:
+            self.get_logger().error(f'Failed to enable torque: {self.packet_handler.getTxRxResult(dxl_comm_result)}')
+            response.success = False
+            return response
+        else:
+            self.get_logger().info('Torque enabled successfully, control mode set.')
+        
+            # Save present control mode
+            self.control_mode = control_mode
+            response.success = True
+            return response
+    
 
     def __del__(self):
         self.packet_handler.write1ByteTxRx(

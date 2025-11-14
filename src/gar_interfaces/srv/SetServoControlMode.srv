@@ -1,7 +1,6 @@
 # Request
-std_msgs/Header header
 uint8 id
-int16 value
+string mode
 ---
 # Response
 bool success
