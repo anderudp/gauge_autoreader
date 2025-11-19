@@ -26,10 +26,10 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/ServoCommand.msg"
-  "srv/GetServoState.srv"
-  "srv/SetServoControlMode.srv"
-  DEPENDENCIES std_msgs
+  "msg/SetPosition.msg"
+  "msg/SetVelocity.msg"
+  "srv/GetPosition.srv"
+  "srv/GetVelocity.srv"
 )
 
 ament_package()

@@ -1,6 +1,5 @@
 # Request
 uint8 id
-string mode
 ---
 # Response
-bool success
+int16 position

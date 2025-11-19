@@ -1,8 +1,8 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-from gar_interfaces.msg import ServoCommand
-from dynamixel_sdk_custom_interfaces.srv import GetPosition
+from gar_interfaces.msg import SetPosition, SetVelocity
+from gar_interfaces.srv import GetPosition, GetVelocity
 from pynput import keyboard
 
 
@@ -27,16 +27,6 @@ class CalibratorNode(Node):
             self.cb_key_release
         )
 
-        self.get_position_cli = self.create_client(
-            GetPosition,
-            "get_position"
-        )
-
-        self.servo_command_pub = self.create_publisher(
-            ServoCommand,
-            "servo_command",
-            qos
-        )
 
     def cb_key_press(self, key):
         self.key_set(key, True)
