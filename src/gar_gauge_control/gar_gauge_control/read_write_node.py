@@ -20,8 +20,8 @@
 from dynamixel_sdk import COMM_SUCCESS
 from dynamixel_sdk import PacketHandler
 from dynamixel_sdk import PortHandler
-from gar_interfaces.msg import SetPosition, SetVelocity
-from gar_interfaces.srv import GetPosition, GetVelocity
+from gar_interfaces.msg import SetTorque, SetVelocity, SetPosition, SetExtendedPosition
+from gar_interfaces.srv import GetTorque, GetVelocity, GetPosition, GetExtendedPosition
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
@@ -50,12 +50,12 @@ class ReadWriteNode(Node):
 
         # Grab servo-specific control parameters for each desired control mode from config file
         self.control_modes = {
-            "position": ControlModeConfig(
-                control_mode_id=self.get_param_as_int("POSITION_CONTROL"),
-                present_addr=self.get_param_as_int("ADDR_PRESENT_POSITION"),
-                goal_addr=self.get_param_as_int("ADDR_GOAL_POSITION"),
-                min_val=self.get_param_as_int("MIN_POSITION_LIMIT"),
-                max_val=self.get_param_as_int("MAX_POSITION_LIMIT"),
+            "torque": ControlModeConfig(
+                control_mode_id=self.get_param_as_int("TORQUE_CONTROL"),
+                present_addr=self.get_param_as_int("ADDR_PRESENT_TORQUE"),
+                goal_addr=self.get_param_as_int("ADDR_GOAL_TORQUE"),
+                min_val=self.get_param_as_int("MIN_TORQUE_LIMIT"),
+                max_val=self.get_param_as_int("MAX_TORQUE_LIMIT"),
             ),
             "velocity": ControlModeConfig(
                 control_mode_id=self.get_param_as_int("VELOCITY_CONTROL"),
@@ -63,6 +63,20 @@ class ReadWriteNode(Node):
                 goal_addr=self.get_param_as_int("ADDR_GOAL_VELOCITY"),
                 min_val=self.get_param_as_int("MIN_VELOCITY_LIMIT"),
                 max_val=self.get_param_as_int("MAX_VELOCITY_LIMIT"),
+            ),
+            "position": ControlModeConfig(
+                control_mode_id=self.get_param_as_int("POSITION_CONTROL"),
+                present_addr=self.get_param_as_int("ADDR_PRESENT_POSITION"),
+                goal_addr=self.get_param_as_int("ADDR_GOAL_POSITION"),
+                min_val=self.get_param_as_int("MIN_POSITION_LIMIT"),
+                max_val=self.get_param_as_int("MAX_POSITION_LIMIT"),
+            ),
+            "extended_position": ControlModeConfig(
+                control_mode_id=self.get_param_as_int("EXTENDED_POSITION_CONTROL"),
+                present_addr=self.get_param_as_int("ADDR_PRESENT_EXTENDED_POSITION"),
+                goal_addr=self.get_param_as_int("ADDR_GOAL_EXTENDED_POSITION"),
+                min_val=self.get_param_as_int("MIN_EXTENDED_POSITION_LIMIT"),
+                max_val=self.get_param_as_int("MAX_EXTENDED_POSITION_LIMIT"),
             ),
         }
 
@@ -89,10 +103,10 @@ class ReadWriteNode(Node):
         # Declare internode comms channels
         qos = QoSProfile(depth=10)
 
-        self.set_position_sub = self.create_subscription(
-            SetPosition,
-            'set_position',
-            self.cb_set_position,
+        self.set_torque_sub = self.create_subscription(
+            SetTorque,
+            'set_torque',
+            self.cb_set_torque,
             qos
         )
 
@@ -103,18 +117,42 @@ class ReadWriteNode(Node):
             qos
         )
 
-        self.get_position_srv = self.create_service(
-            GetPosition, 
-            'get_position', 
-            self.cb_get_position,
-            qos_profile=qos
+        self.set_position_sub = self.create_subscription(
+            SetPosition,
+            'set_position',
+            self.cb_set_position,
+            qos
+        )
+
+        self.set_extended_position_sub = self.create_subscription(
+            SetExtendedPosition,
+            'set_extended_position',
+            self.cb_set_extended_position,
+            qos
+        )
+
+        self.get_velocity_srv = self.create_service(
+            GetTorque, 
+            'get_torque', 
+            self.cb_get_torque
         )
 
         self.get_velocity_srv = self.create_service(
             GetVelocity, 
             'get_velocity', 
-            self.cb_get_velocity,
-            qos_profile=qos
+            self.cb_get_velocity
+        )
+
+        self.get_position_srv = self.create_service(
+            GetPosition, 
+            'get_position', 
+            self.cb_get_position
+        )
+
+        self.get_extended_position_srv = self.create_service(
+            GetExtendedPosition, 
+            'get_extended_position', 
+            self.cb_get_extended_position
         )
 
 
@@ -184,14 +222,23 @@ class ReadWriteNode(Node):
                                     {self.packet_handler.getTxRxResult(dxl_comm_result)}')
         else:
             self.get_logger().info('Torque enabled successfully.')
+            self.present_control_mode = target_mode
+
+
+    def cb_set_torque(self, msg):
+        self.set_servo_value(msg.id, msg.torque, "torque")
+
+
+    def cb_set_velocity(self, msg):
+        self.set_servo_value(msg.id, msg.velocity, "velocity")
 
 
     def cb_set_position(self, msg):
-        self.set_servo_value(msg.id, msg.position, "position")
+            self.set_servo_value(msg.id, msg.position, "position")
 
-    
-    def cb_set_velocity(self, msg):
-        self.set_servo_value(msg.id, msg.velocity, "velocity")
+
+    def cb_set_extended_position(self, msg):
+            self.set_servo_value(msg.id, msg.position, "extended_position")
 
     
     def set_servo_value(self, target_servo, target_value, target_mode):
@@ -200,9 +247,9 @@ class ReadWriteNode(Node):
         
         expected_min_val = self.control_modes[target_mode].min_val
         expected_max_val = self.control_modes[target_mode].max_val
+
         if not expected_min_val <= target_value <= expected_max_val:
-            self.get_logger().error(f"Invalid {target_mode}! Expected {expected_min_val} to {expected_max_val}, received {target_value}.")
-            return
+            self.get_logger().error(f"Invalid {target_mode}! Expected {expected_min_val}~{expected_max_val}, received {target_value}.")
 
         dxl_comm_result, dxl_error = self.packet_handler.write4ByteTxRx(
             self.port_handler, 
@@ -219,15 +266,27 @@ class ReadWriteNode(Node):
             self.get_logger().info(f"Set servo {target_servo} to target {target_mode} {target_value} successfully.")
 
 
+    def cb_get_torque(self, request, response):
+        trq = self.get_servo_value(request.id, "torque")
+        response.torque = trq
+        return response
+
+
+    def cb_get_velocity(self, request, response):
+        vel = self.get_servo_value(request.id, "velocity")
+        response.velocity = vel
+        return response
+
+
     def cb_get_position(self, request, response):
         pos = self.get_servo_value(request.id, "position")
         response.position = pos
         return response
     
 
-    def cb_get_velocity(self, request, response):
-        vel = self.get_servo_value(request.id, "velocity")
-        response.velocity = vel
+    def cb_get_extended_position(self, request, response):
+        pos = self.get_servo_value(request.id, "extended_position")
+        response.position = pos
         return response
 
 
@@ -244,7 +303,6 @@ class ReadWriteNode(Node):
             self.get_logger().error(f'Error: {self.packet_handler.getRxPacketError(dxl_error)}')
         else:
             self.get_logger().info(f"Received {query_mode} of servo {query_servo} successfully. Value: {dxl_present_value}")
-
         return dxl_present_value
 
 

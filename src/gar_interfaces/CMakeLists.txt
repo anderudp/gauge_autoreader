@@ -26,10 +26,14 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/SetPosition.msg"
+  "msg/SetTorque.msg"
   "msg/SetVelocity.msg"
-  "srv/GetPosition.srv"
+  "msg/SetPosition.msg"
+  "msg/SetExtendedPosition.msg"
+  "srv/GetTorque.srv"
   "srv/GetVelocity.srv"
+  "srv/GetPosition.srv"
+  "srv/GetExtendedPosition.srv"
 )
 
 ament_package()
