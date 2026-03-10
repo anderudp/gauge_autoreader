@@ -17,5 +17,7 @@
         }
     },
     "terminal.integrated.defaultProfile.linux": "ros2",
-    "terminal.integrated.shellIntegration.enabled": true
+    "terminal.integrated.shellIntegration.enabled": true,
+    "ROS2.distro": "jazzy",
+    "cmake.ignoreCMakeListsMissing": true
 }
