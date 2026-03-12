@@ -11,8 +11,8 @@ RUN apt-get update && apt-get upgrade -y \
     python3-pip \
     python3-rosdep \
     python3-colcon-common-extensions \
-    python3-pynput \
     python3-serial \
+    python3-yaml \
     ros-jazzy-rviz2 \
     ros-jazzy-dynamixel-sdk
 

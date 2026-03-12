@@ -28,7 +28,6 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'calibrator_node = gar_gauge_control.calibrator_node:main',
             'read_write_node = gar_gauge_control.read_write_node:main'
         ],
     },
