@@ -1,4 +1,5 @@
 FROM ros:jazzy
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root/ws
 
@@ -10,7 +11,9 @@ RUN apt-get update && apt-get upgrade -y \
     python3-pip \
     python3-rosdep \
     python3-colcon-common-extensions \
+    python3-serial \
+    python3-yaml \
     ros-jazzy-rviz2 \
-    && rm -rf /var/lib/apt/lists/*
+    ros-jazzy-dynamixel-sdk
 
 ENV SHELL /bin/bash

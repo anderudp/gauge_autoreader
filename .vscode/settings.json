@@ -1,9 +1,11 @@
 {
     "python.autoComplete.extraPaths": [
-        "/opt/ros/jazzy/lib/python3.12/site-packages"
+        "/opt/ros/jazzy/lib/python3.12/site-packages",
+        "${workspaceFolder}/install/gar_interfaces/lib/python3.12/site-packages"
     ],
     "python.analysis.extraPaths": [
-        "/opt/ros/jazzy/lib/python3.12/site-packages"
+        "/opt/ros/jazzy/lib/python3.12/site-packages",
+        "${workspaceFolder}/install/gar_interfaces/lib/python3.12/site-packages"
     ],
     "terminal.integrated.profiles.linux": {
         "ros2": {
@@ -15,5 +17,7 @@
         }
     },
     "terminal.integrated.defaultProfile.linux": "ros2",
-    "terminal.integrated.shellIntegration.enabled": true
+    "terminal.integrated.shellIntegration.enabled": true,
+    "ROS2.distro": "jazzy",
+    "cmake.ignoreCMakeListsMissing": true
 }

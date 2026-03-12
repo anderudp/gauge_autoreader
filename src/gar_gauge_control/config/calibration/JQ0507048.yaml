@@ -1,0 +1,6 @@
+dimension: pressure
+unit_of_measurement: MPa
+min_position: 1400
+min_value: 0.0
+max_position: -1650
+max_value: 1.0

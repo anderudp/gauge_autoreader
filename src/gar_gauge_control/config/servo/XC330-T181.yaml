@@ -1,0 +1,41 @@
+read_write_node:
+  ros__parameters:
+    # Default settings
+    DXL_ID: 1  # Dynamixel ID : 1
+    BAUDRATE: 57600  # Dynamixel default baudrate : 57600
+    DEVICE_NAME: "/dev/ttyUSB0"  # Check which port is being used on your controller
+    PROTOCOL_VERSION: 2.0  # Default Protocol version of DYNAMIXEL X series.
+
+    # Common servo properties
+    ADDR_OPERATING_MODE: 11
+    ADDR_TORQUE_ENABLE: 64
+    TORQUE_ENABLE: 1  # Value for enabling the torque
+    TORQUE_DISABLE: 0  # Value for disabling the torque
+
+    # Torque control mode
+    TORQUE_CONTROL: 0  # Value written to ADDR_OPERATING_MODE for current/torque control mode
+    ADDR_PRESENT_TORQUE: 126
+    ADDR_GOAL_TORQUE: 102
+    MIN_TORQUE_LIMIT: -910
+    MAX_TORQUE_LIMIT: 910
+
+    # Velocity control mode
+    VELOCITY_CONTROL: 1  # Value written to ADDR_OPERATING_MODE for velocity control mode
+    ADDR_PRESENT_VELOCITY: 128
+    ADDR_GOAL_VELOCITY: 104
+    MIN_VELOCITY_LIMIT: -2047
+    MAX_VELOCITY_LIMIT: 2047
+
+    # Position control mode
+    POSITION_CONTROL: 3  # Value written to ADDR_OPERATING_MODE for position control mode
+    ADDR_PRESENT_POSITION: 132
+    ADDR_GOAL_POSITION: 116
+    MIN_POSITION_LIMIT: 0
+    MAX_POSITION_LIMIT: 4095
+
+    # Extended position control mode
+    EXTENDED_POSITION_CONTROL: 4  # Value written to ADDR_OPERATING_MODE for extended position control mode
+    ADDR_PRESENT_EXTENDED_POSITION: 132
+    ADDR_GOAL_EXTENDED_POSITION: 116
+    MIN_EXTENDED_POSITION_LIMIT: -1048575
+    MAX_EXTENDED_POSITION_LIMIT: 1048575
