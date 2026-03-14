@@ -1,5 +1,5 @@
-FROM ros:jazzy
-ENV DEBIAN_FRONTEND=noninteractive
+# Dockerfile.arm64
+FROM arm64v8/ros:jazzy AS builder
 
 WORKDIR /root/ws
 
@@ -9,7 +9,6 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y \
     git \
     build-essential \
-    openssh-client \
     python3-pip \
     python3-rosdep \
     python3-colcon-common-extensions \
@@ -18,4 +17,16 @@ RUN apt-get update && apt-get upgrade -y \
     ros-jazzy-rviz2 \
     ros-jazzy-dynamixel-sdk
 
-ENV SHELL /bin/bash
+RUN mkdir -p src
+
+COPY src src
+
+RUN . /opt/ros/jazzy/setup.sh && \
+    colcon build --packages-select gar_interfaces gar_gauge_control
+
+RUN tar -czf install.tar.gz install
+
+# Export only the install folder
+FROM scratch
+
+COPY --from=builder root/ws/install.tar.gz /
