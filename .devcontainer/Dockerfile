@@ -20,4 +20,7 @@ RUN apt-get update && apt-get upgrade -y \
     ros-jazzy-rqt \
     ros-jazzy-rqt-graph
 
+RUN pip install --break-system-packages \
+    lifxlan
+
 ENV SHELL /bin/bash
