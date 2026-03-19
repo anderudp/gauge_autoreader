@@ -16,6 +16,8 @@ RUN apt-get update && apt-get upgrade -y \
     python3-serial \
     python3-yaml \
     ros-jazzy-rviz2 \
-    ros-jazzy-dynamixel-sdk
+    ros-jazzy-dynamixel-sdk \
+    ros-jazzy-rqt \
+    ros-jazzy-rqt-graph
 
 ENV SHELL /bin/bash
