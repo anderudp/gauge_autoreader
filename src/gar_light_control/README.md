@@ -32,6 +32,11 @@ ros2 launch gar_light_control lifx_test_launch.py
 ```
 The node should be able to recognize the device as a light and display its data.
 
+In another terminal, test the node's functionality by running:
+```bash
+ros2 topic pub --once /set_power gar_interfaces/msg/SetPower "{id: 0, power: true}"
+```
+
 ### If onboarding failed
 #### Reset the bulb
 Turn the bulb on and off at least 5 times in roughly 1 second intervals. After a few seconds of stopping, the bulb should flash and the WiFi access point should reappear. 
