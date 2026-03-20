@@ -15,7 +15,9 @@
 # limitations under the License.
 #
 # Author: Wonho Yun, Will Son
-
+#
+# Modifications:
+# - Added support for all servo control schemes
 
 from dynamixel_sdk import COMM_SUCCESS
 from dynamixel_sdk import PacketHandler
@@ -156,7 +158,7 @@ class DynamixelControlNode(Node):
         )
 
 
-    def get_param_as_int(self, param_name: str):
+    def  get_param_as_int(self, param_name: str):
         val = self.get_parameter(param_name).value
         try:
             assert isinstance(val, int)
