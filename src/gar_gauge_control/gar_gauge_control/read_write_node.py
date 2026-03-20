@@ -234,11 +234,11 @@ class ReadWriteNode(Node):
 
 
     def cb_set_position(self, msg):
-            self.set_servo_value(msg.id, msg.position, "position")
+        self.set_servo_value(msg.id, msg.position, "position")
 
 
     def cb_set_extended_position(self, msg):
-            self.set_servo_value(msg.id, msg.position, "extended_position")
+        self.set_servo_value(msg.id, msg.position, "extended_position")
 
     
     def set_servo_value(self, target_servo, target_value, target_mode):
