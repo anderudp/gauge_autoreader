@@ -37,11 +37,11 @@ class ControlModeConfig:
     max_val: int
 
 
-class ReadWriteNode(Node):
+class DynamixelControlNode(Node):
 
     def __init__(self):
         super().__init__(
-            'read_write_node', 
+            'dynamixel_control_node', 
             automatically_declare_parameters_from_overrides=True
         )
 
@@ -314,12 +314,12 @@ class ReadWriteNode(Node):
             self.val_torque_disable
         )
         self.port_handler.closePort()
-        self.get_logger().info('Shutting down read_write_node')
+        self.get_logger().info('Shutting down dynamixel_control_node')
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = ReadWriteNode()
+    node = DynamixelControlNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()

@@ -14,8 +14,8 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='gar_gauge_control',
-            executable='read_write_node',
-            name='read_write_node',
+            executable='dynamixel_control_node',
+            name='dynamixel_control_node',
             parameters=[
                 servo_config
             ]

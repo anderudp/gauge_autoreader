@@ -28,7 +28,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'read_write_node = gar_gauge_control.read_write_node:main'
+            'dynamixel_control_node = gar_gauge_control.dynamixel_control_node:main'
         ],
     },
 )
