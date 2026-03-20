@@ -15,12 +15,12 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
         (os.path.join('share', package_name, 'config', 'servo'), glob('config/servo/*.yaml')),
     ],
-    install_requires=['setuptools', 'pynput'],
+    install_requires=['setuptools'],
     zip_safe=True,
     maintainer='root',
     maintainer_email='todo@todo.todo',
     description='TODO: Package description',
-    license='MIT',
+    license='TODO: License declaration',
     extras_require={
         'test': [
             'pytest',
