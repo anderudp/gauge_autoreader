@@ -34,6 +34,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "dynamixel_interfaces/srv/GetVelocity.srv"
   "dynamixel_interfaces/srv/GetPosition.srv"
   "dynamixel_interfaces/srv/GetExtendedPosition.srv"
+  "lifx_interfaces/msg/SetColor.msg"
+  "lifx_interfaces/msg/SetInfrared.msg"
+  "lifx_interfaces/msg/SetPower.msg"
 )
 
 ament_package()

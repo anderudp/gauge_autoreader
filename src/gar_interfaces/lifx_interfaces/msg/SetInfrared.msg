@@ -1,0 +1,2 @@
+uint8 id
+uint16 ir_brightness
