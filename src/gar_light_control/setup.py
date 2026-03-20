@@ -14,7 +14,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='root',
-    maintainer_email='pappandrasdavid@gmail.com',
+    maintainer_email='todo@todo.todo',
     description='TODO: Package description',
     license='TODO: License declaration',
     extras_require={
@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'lifx_dual_control_node = gar_light_control.lifx_dual_control_node:main'
+            'lifx_control_node = gar_light_control.lifx_control_node:main'
         ],
     },
 )

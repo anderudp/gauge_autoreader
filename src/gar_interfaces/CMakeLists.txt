@@ -26,14 +26,14 @@ if(BUILD_TESTING)
 endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/SetTorque.msg"
-  "msg/SetVelocity.msg"
-  "msg/SetPosition.msg"
-  "msg/SetExtendedPosition.msg"
-  "srv/GetTorque.srv"
-  "srv/GetVelocity.srv"
-  "srv/GetPosition.srv"
-  "srv/GetExtendedPosition.srv"
+  "dynamixel_interfaces/msg/SetTorque.msg"
+  "dynamixel_interfaces/msg/SetVelocity.msg"
+  "dynamixel_interfaces/msg/SetPosition.msg"
+  "dynamixel_interfaces/msg/SetExtendedPosition.msg"
+  "dynamixel_interfaces/srv/GetTorque.srv"
+  "dynamixel_interfaces/srv/GetVelocity.srv"
+  "dynamixel_interfaces/srv/GetPosition.srv"
+  "dynamixel_interfaces/srv/GetExtendedPosition.srv"
 )
 
 ament_package()
