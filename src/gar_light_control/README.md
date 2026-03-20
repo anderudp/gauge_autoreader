@@ -1,5 +1,5 @@
 # GAR Light Control
-Automatic adjustment of lights for Gauge Autoreader.
+Wireless adjustment of lights for Gauge Autoreader.
 
 ## Using LIFX bulbs
 Different LIFX bulbs have a range of parameters adjustable over WiFi. The models used for our purposes were a pair of SuperColors, which have RGB and white temperature adjustment, but not infrared capabilities.
