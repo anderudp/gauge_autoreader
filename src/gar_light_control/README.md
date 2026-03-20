@@ -20,17 +20,17 @@ git clone https://github.com/tserong/lifx-hacks.git
 chmod +x ./lifx-hacks/onboard.py && ./lifx-hacks/onboard.py YOUR_NETWORK_SSID YOUR_WIFI_PASSWORD
 ```
 
-Enter `y` prompted to continue. After a few seconds, the bulb should momentarily blink once.
+Enter `y` when prompted to continue. After a few seconds, the bulb should momentarily blink once.
 
 #### Reconnect to your network
 The access point should disappear and the bulb should now be reachable over WiFi.
 
 ### Testing the bulb
-After compiling the project ans sourcing the setup script, run the following command:
+After compiling the project and sourcing the setup script, run the following command:
 ```bash
 ros2 launch gar_light_control lifx_test_launch.py 
 ```
-The node should be able to recognize the device as a light and display its data.
+The node should be able to recognize the device as a light and display its data. All active lights should have their information displayed here.
 
 In another terminal, test the node's functionality by running:
 ```bash
@@ -48,7 +48,7 @@ Sometimes it fails the first time around. Make sure the SSID and Password are co
 ```bash
 ping 172.16.0.1
 ```
-should give something akin to
+should give something along the lines of
 ```
 64 bytes from 172.16.0.1: icmp_seq=1 ttl=255 time=4.56 ms
 ```
