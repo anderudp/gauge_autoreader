@@ -34,8 +34,9 @@ The node should be able to recognize the device as a light and display its data.
 
 In another terminal, test the node's functionality by running:
 ```bash
-ros2 topic pub --once /set_power gar_interfaces/msg/SetPower "{id: 0, power: true}"
+ros2 topic pub --once /set_power gar_interfaces/msg/SetPower "{id: 0, power: false}"
 ```
+This should turn off the (first) bulb.
 
 ### If onboarding failed
 #### Reset the bulb
@@ -72,4 +73,4 @@ The package uses a [third-party high-level API](https://github.com/mclarkk/lifxl
 ```bash
 pip install --break-system-packages lifxlan
 ```
-or using any virtual environment manager.
+or using your virtual environment manager of choice.
