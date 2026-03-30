@@ -4,7 +4,7 @@
   <name>gar_arm_control</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="pappandrasdavid@gmail.com">root</maintainer>
+  <maintainer email="todo@todo.todo">root</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
