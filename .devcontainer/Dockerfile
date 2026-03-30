@@ -19,7 +19,8 @@ RUN apt-get update && apt-get upgrade -y \
     ros-$ROS_DISTRO-rviz2 \
     ros-$ROS_DISTRO-dynamixel-sdk \
     ros-$ROS_DISTRO-rqt \
-    ros-$ROS_DISTRO-rqt-graph
+    ros-$ROS_DISTRO-rqt-graph \
+    ros-$ROS_DISTRO-librealsense2*
 
 RUN pip install --break-system-packages \
     lifxlan \
