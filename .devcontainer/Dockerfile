@@ -1,4 +1,5 @@
-FROM ros:jazzy
+ARG ROS_DISTRO=jazzy
+FROM ros:$ROS_DISTRO
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root/ws
@@ -15,12 +16,13 @@ RUN apt-get update && apt-get upgrade -y \
     python3-colcon-common-extensions \
     python3-serial \
     python3-yaml \
-    ros-jazzy-rviz2 \
-    ros-jazzy-dynamixel-sdk \
-    ros-jazzy-rqt \
-    ros-jazzy-rqt-graph
+    ros-$ROS_DISTRO-rviz2 \
+    ros-$ROS_DISTRO-dynamixel-sdk \
+    ros-$ROS_DISTRO-rqt \
+    ros-$ROS_DISTRO-rqt-graph
 
 RUN pip install --break-system-packages \
-    lifxlan
+    lifxlan \
+    xarm-python-sdk
 
 ENV SHELL /bin/bash
