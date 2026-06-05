@@ -46,6 +46,7 @@ Turn the bulb on and off at least 5 times in roughly 1 second intervals. After a
 Sometimes it fails the first time around. Make sure the SSID and Password are correct.
 
 #### Ensure the bulb is on the expected IP address
+While on the bulb's WiFi AP, running
 ```bash
 ping 172.16.0.1
 ```
