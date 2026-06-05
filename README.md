@@ -36,7 +36,7 @@ echo $ROS_DOMAIN_ID
 
 ## Compiling packages for ARM
 
-You may want to run some of these packages from low-power ARM-based machines communicating with the others using ROS2-over-WiFi, which lack the performance to compile them. Since ROS-native cross-compilation is deprecated, this can be achieved using ARM emulation on x86 via QEMU.
+You may want to run some of these packages from low-power ARM-based machines communicating with the others using ROS2-over-WiFi. These ARM machines may lack the performance to compile the necessary packages. Since ROS-native cross-compilation is deprecated, it is set up using ARM emulation via QEMU.
 
 ### Preparing the ARM machine
 
